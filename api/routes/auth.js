@@ -1,10 +1,8 @@
 const { Router } = require('express');
 //const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-const controller = require('../controller/controller');
+const userCtrl = require('../controller/userController');
 
 const router = Router();
 
@@ -14,6 +12,8 @@ router.get('/api', (req, res) => {
   });
 });
 
-router.post('/api/sign-up', controller.createUser);
+router.post('/api/sign-up', userCtrl.createUser);
+
+router.post('/api/login', userCtrl.login);
 
 module.exports = router;
