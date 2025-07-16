@@ -1,4 +1,5 @@
 const { PrismaClient } = require('../../generated/prisma');
+const { connect } = require('../routes');
 
 const prisma = new PrismaClient();
 
@@ -59,5 +60,40 @@ exports.getPostsByIdOrTitle = async (req, res) => {
     res.status(409).json({ message: 'Error: no posts found', post: post });
   } else {
     res.status(201).json({ message: 'got all posts', post: post });
+  }
+};
+
+exports.createComment = async (req, res) => {
+  const user = await req.user;
+  const comment = await prisma.comment.create({
+    data: {
+      content: req.body.content,
+      author: {
+        connect: {
+          id: user.id,
+        },
+      },
+      post: {
+        connect: {
+          id: req.params.postId,
+        },
+      },
+    },
+  });
+
+  /* const comment = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+    },
+    include: {
+      posts: true,
+      comments: true,
+    },
+  }); */
+
+  if (!comment) {
+    res.status(409).json({ message: 'Error: author not found' });
+  } else {
+    res.status(201).json({ message: 'Created post', comment: comment });
   }
 };

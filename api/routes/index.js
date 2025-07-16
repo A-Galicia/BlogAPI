@@ -31,6 +31,12 @@ router.post(
   postCtrl.createPost
 );
 
+router.post(
+  '/api/comment/:postId',
+  passport.authenticate('jwt', { session: false }),
+  postCtrl.createComment
+);
+
 // ________________________________________________________________
 
 module.exports = router;
