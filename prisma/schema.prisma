@@ -29,7 +29,7 @@ model Post {
   title String @unique
   content String
   comments Comment[]
-  createdAt DateTime
+  createdAt DateTime @default(now())
   publish Boolean
 }
 
@@ -40,5 +40,5 @@ model Comment {
   post    Post @relation(fields: [postId], references: [id])
   postId  String
   content String
-  createdAt DateTime
+  createdAt DateTime  @default(now())
 }

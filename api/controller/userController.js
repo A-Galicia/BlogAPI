@@ -65,13 +65,12 @@ exports.login = async (req, res, next) => {
     const match = await bcrypt.compare(req.body.password, user.password);
     if (!match) return res.status(400).json({ message: 'incorrect password' });
 
-    // generate access token
     const accessToken = jwt.sign(
       {
         id: user.id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '6h' }
+      { expiresIn: '4h' }
       //expires in 6 hours, should last whole workout
     );
 
