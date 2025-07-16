@@ -7,11 +7,17 @@ const router = Router();
 
 // Get ////////////////////////////////////////////////////////////
 
-router.get('/api', (req, res) => {
-  res.json({
-    msg: 'hello',
-  });
-});
+router.get(
+  '/api/posts',
+  passport.authenticate('jwt', { session: false }),
+  postCtrl.getAllPosts
+);
+
+router.get(
+  '/api/post/:idOrName',
+  passport.authenticate('jwt', { session: false }),
+  postCtrl.getPostsByIdOrTitle
+);
 
 // ________________________________________________________________
 
