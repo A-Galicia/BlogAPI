@@ -36,7 +36,7 @@ exports.getAllPosts = async (req, res) => {
   if (!posts) {
     res.status(409).json({ message: 'Error: no posts' });
   } else {
-    res.status(201).json({ posts: posts });
+    res.status(201).json({ posts });
   }
 };
 
@@ -65,12 +65,15 @@ exports.getPostsByIdOrTitle = async (req, res) => {
         { id: { contains: req.params.idOrName } },
       ],
     },
+    include: {
+      author: true,
+    },
   });
 
   if (!post) {
     res.status(409).json({ message: 'Error: no posts found', post: post });
   } else {
-    res.status(201).json({ post: post });
+    res.status(200).json({ post: post });
   }
 };
 
@@ -100,23 +103,19 @@ exports.createComment = async (req, res) => {
 };
 
 exports.getPostComments = async (req, res) => {
-  const comments = await prisma.post.findMany({
+  const comments = await prisma.comment.findMany({
     where: {
-      id: req.params.postId,
+      postId: req.params.postId,
     },
     include: {
-      comments: {
-        include: {
-          author: true,
-        },
-      },
+      author: true,
     },
   });
 
   if (!comments) {
     res.status(409).json({ message: 'Error: comments not found' });
   } else {
-    res.status(201).json({ post: comments });
+    res.status(201).json({ comments: comments });
   }
 };
 
