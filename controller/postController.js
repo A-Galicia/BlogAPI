@@ -129,16 +129,26 @@ exports.getPostComments = async (req, res) => {
 };
 
 exports.editPost = async (req, res) => {
-  const post = await prisma.post.update({
-    where: {
-      id: req.params.postId,
-    },
-    data: {
-      title: req.body.title,
-      content: req.body.content,
-      publish: req.body.publish,
-    },
-  });
+  const user = await req.user;
+
+  let post = null;
+  if (user.author) {
+    post = await prisma.post.update({
+      where: {
+        id: req.params.postId,
+      },
+      data: {
+        title: req.body.title,
+        content: req.body.content,
+        publish: req.body.publish,
+      },
+    });
+  } else {
+    res
+      .status(401)
+      .json({ message: 'Error: Unauthorized, user is not an author' });
+    return;
+  }
 
   if (!post) {
     res.status(409).json({ message: 'Error: post not found' });
@@ -148,16 +158,26 @@ exports.editPost = async (req, res) => {
 };
 
 exports.deletePost = async (req, res) => {
-  const comments = await prisma.comment.deleteMany({
-    where: {
-      postId: req.params.postId,
-    },
-  });
-  const post = await prisma.post.delete({
-    where: {
-      id: req.params.postId,
-    },
-  });
+  const user = await req.user;
+
+  let post = null;
+  if (user.author) {
+    await prisma.comment.deleteMany({
+      where: {
+        postId: req.params.postId,
+      },
+    });
+    const post = await prisma.post.delete({
+      where: {
+        id: req.params.postId,
+      },
+    });
+  } else {
+    res
+      .status(401)
+      .json({ message: 'Error: Unauthorized, user is not an author' });
+    return;
+  }
 
   if (!post) {
     res.status(409).json({ message: 'Error: post not found' });
@@ -167,11 +187,21 @@ exports.deletePost = async (req, res) => {
 };
 
 exports.deleteComment = async (req, res) => {
-  const comment = await prisma.comment.delete({
-    where: {
-      id: req.params.commentId,
-    },
-  });
+  const user = await req.user;
+
+  let comment = null;
+  if (user.author) {
+    comment = await prisma.comment.delete({
+      where: {
+        id: req.params.commentId,
+      },
+    });
+  } else {
+    res
+      .status(401)
+      .json({ message: 'Error: Unauthorized, user is not an author' });
+    return;
+  }
 
   if (!comment) {
     res.status(409).json({ message: 'Error: post not found' });
