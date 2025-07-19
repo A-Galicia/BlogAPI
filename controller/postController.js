@@ -4,20 +4,29 @@ const prisma = new PrismaClient();
 
 exports.createPost = async (req, res) => {
   const author = await req.user;
-  const post = await prisma.user.update({
-    where: {
-      id: author.id,
-    },
-    data: {
-      posts: {
-        create: {
-          title: req.body.title,
-          content: req.body.content,
-          publish: req.body.publish,
+
+  let post = null;
+  if (author.author) {
+    post = await prisma.user.update({
+      where: {
+        id: author.id,
+      },
+      data: {
+        posts: {
+          create: {
+            title: req.body.title,
+            content: req.body.content,
+            publish: req.body.publish,
+          },
         },
       },
-    },
-  });
+    });
+  } else {
+    res
+      .status(401)
+      .json({ message: 'Error: Unauthorized, user is not an author' });
+    return;
+  }
 
   if (!post) {
     res.status(409).json({ message: 'Error: author not found' });
